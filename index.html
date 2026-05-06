@@ -51,6 +51,7 @@
     }
 
     section {
+        justify-items: center;
     padding: 80px 20px;
     margin: 60px auto;
     max-width: 1400px;
@@ -66,13 +67,21 @@
     font-size: 24px;
     margin-bottom: 15px;
     opacity: 0.6;
-    } 
-
+    }
+    /* ANIMACIÓN SCROLL */
+    .fade-section {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .fade-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+    }
     h2 {
     margin-bottom: 30px;
     color: #ff4b5c;
     }
-
     section:nth-of-type(even) {
     background: #fff0f3;
     }
@@ -84,18 +93,14 @@
         max-width: 500px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
-
     footer {
         padding: 20px;
         background: #ff4b5c;
     }
-
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px);}
         to { opacity: 1; transform: translateY(0);}
     }
-
-
     /* SOBRE */
 .envelope {
     position: relative;
@@ -151,7 +156,102 @@
     top: -240px;
     opacity: 1;
 }
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
 
+.nav-card {
+    text-decoration: none;
+    background: linear-gradient(135deg, #ffe0e6, #fff);
+    border-radius: 20px;
+    padding: 25px;
+    color: #333;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.nav-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+}
+
+.nav-card .icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.nav-card h3 {
+    color: #ff4b5c;
+    margin-bottom: 10px;
+}
+
+.nav-card p {
+    font-size: 14px;
+}
+
+.carousel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 20px;
+    max-width: 900px;
+}
+
+.carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-card {
+    min-width: 220px;
+    flex: 0 0 auto;
+    text-decoration: none;
+    background: linear-gradient(135deg, #ffe0e6, #fff);
+    border-radius: 20px;
+    padding: 25px;
+    color: #333;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.nav-card:hover {
+    transform: scale(1.08);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+}
+
+.icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.nav-card h3 {
+    color: #ff4b5c;
+}
+
+.arrow {
+    background: #ff4b5c;
+    color: #fff;
+    border: none;
+    font-size: 25px;
+    padding: 10px 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.arrow:hover {
+    background: #ff6b7a;
+}
 </style>
 </head>
 
@@ -168,7 +268,7 @@
     <button class="btn" onclick="irACarta()">Haz clic aquí 💌</button>
 </header>
 
-<section id="carta">
+<section class="fade-section" id="carta">
     <h2>Lo que siento por ti 💕</h2>
 
     <div class="envelope" onclick="abrirCarta(this)">
@@ -190,7 +290,51 @@
     </div>
 </section>
 
-<section>
+<section class="fade-section">
+    <h2>Momentos especiales 💕</h2>
+
+    <div class="carousel-container">
+        <button class="arrow left" onclick="scrollCarousel(-1)">❮</button>
+
+        <div class="carousel" id="carousel">
+
+            <a href="fotos.html" class="nav-card">
+                <div class="icon">📸</div>
+                <h3>Fotos</h3>
+                <p>Nuestros recuerdos más bonitos</p>
+            </a>
+
+            <a href="videos.html" class="nav-card">
+                <div class="icon">🎥</div>
+                <h3>Videos</h3>
+                <p>Momentos en movimiento</p>
+            </a>
+
+            <a href="imagenes.html" class="nav-card">
+                <div class="icon">🖼️</div>
+                <h3>Imágenes</h3>
+                <p>Detalles que me recuerdan a ti</p>
+            </a>
+
+            <a href="manga.html" class="nav-card">
+                <div class="icon">📖</div>
+                <h3>Historia Manga</h3>
+                <p>Nuestra historia como cuento</p>
+            </a>
+
+            <a href="Mensajes interactivos/index.html" class="nav-card">
+                <div class="icon">💌</div>
+                <h3>Mensajes</h3>
+                <p>Palabras de mi corazón</p>
+            </a>
+
+        </div>
+
+        <button class="arrow right" onclick="scrollCarousel(1)">❯</button>
+    </div>
+</section>
+
+<section class="fade-section">
     <h2>Mi promesa 💍</h2>
 
     <p>
@@ -241,6 +385,35 @@ function crearCorazones() {
 <script>
 function irACarta() {
     document.getElementById("carta").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+</script>
+<script>
+const sections = document.querySelectorAll('.fade-section');
+
+function mostrarSecciones() {
+    const trigger = window.innerHeight * 0.85;
+
+    sections.forEach(sec => {
+        const top = sec.getBoundingClientRect().top;
+
+        if (top < trigger) {
+            sec.classList.add('visible');
+        }
+    });
+}
+
+window.addEventListener('scroll', mostrarSecciones);
+window.addEventListener('load', mostrarSecciones);
+</script>
+<script>
+function scrollCarousel(direction) {
+    const carousel = document.getElementById("carousel");
+    const scrollAmount = 250;
+
+    carousel.scrollBy({
+        left: direction * scrollAmount,
         behavior: "smooth"
     });
 }
