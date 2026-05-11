@@ -231,62 +231,7 @@ h2{
 
     <h2>Nuestra galería especial 📸</h2>
 
-    <div class="gallery">
-
-        <div class="image-card">
-            <img src="Galeria/foto1.png" alt="">
-            <div class="overlay">
-                <p>
-                    Tu sonrisa ilumina cada rincón de mi vida 💗
-                </p>
-            </div>
-        </div>
-
-        <div class="image-card">
-            <img src="Galeria/foto2.png" alt="">
-            <div class="overlay">
-                <p>
-                    Eres el lugar donde mi corazón siempre quiere estar 💕
-                </p>
-            </div>
-        </div>
-
-        <div class="image-card">
-            <img src="img/foto3.jpg" alt="">
-            <div class="overlay">
-                <p>
-                    Contigo todo se siente más bonito ✨
-                </p>
-            </div>
-        </div>
-
-        <div class="image-card">
-            <img src="img/foto4.jpg" alt="">
-            <div class="overlay">
-                <p>
-                    Gracias por llenar mi vida de felicidad 💖
-                </p>
-            </div>
-        </div>
-
-        <div class="image-card">
-            <img src="img/foto5.jpg" alt="">
-            <div class="overlay">
-                <p>
-                    Cada recuerdo contigo vale más que cualquier tesoro 💌
-                </p>
-            </div>
-        </div>
-
-        <div class="image-card">
-            <img src="img/foto6.jpg" alt="">
-            <div class="overlay">
-                <p>
-                    Te escogería una y mil veces más 💞
-                </p>
-            </div>
-        </div>
-
+    <div class="gallery" id="gallery">
     </div>
 
     <div class="back-container">
@@ -300,63 +245,143 @@ h2{
 <script>
 
 /* SCROLL SUAVE */
-
 function irGaleria(){
     document.getElementById('galeria').scrollIntoView({
         behavior:'smooth'
     });
 }
 
-/* FADE IN */
+/* EXTENSIONES POSIBLES */
+const extensiones = ['png', 'jpg', 'jpeg', 'webp'];
 
-const cards = document.querySelectorAll('.image-card');
+/* MENSAJE POR DEFECTO SI NO EXISTE EL ARCHIVO DE TEXTO */
+const mensajePorDefecto = "Eres el amor más hermoso que ha llegado a mi vida 💖";
 
-function mostrarCards(){
+/* FUNCIÓN PARA LEER LA DESCRIPCIÓN DESDE Texto/fotoX.txt */
+async function obtenerDescripcion(numeroFoto) {
+    const rutaTexto = `Texto/foto${numeroFoto}.txt`;
 
-    const trigger = window.innerHeight * 0.85;
+    try {
+        const respuesta = await fetch(rutaTexto);
 
-    cards.forEach(card=>{
-
-        const top = card.getBoundingClientRect().top;
-
-        if(top < trigger){
-            card.classList.add('visible');
+        // Si el archivo no existe
+        if (!respuesta.ok) {
+            return mensajePorDefecto;
         }
 
-    });
+        const texto = await respuesta.text();
 
+        // Retornar el contenido del archivo o el mensaje por defecto
+        return texto.trim() || mensajePorDefecto;
+
+    } catch (error) {
+        return mensajePorDefecto;
+    }
 }
 
-window.addEventListener('scroll',mostrarCards);
-window.addEventListener('load',mostrarCards);
+/* FUNCIÓN PARA CREAR LA GALERÍA AUTOMÁTICAMENTE */
+async function crearGaleria() {
+    const gallery = document.getElementById('gallery');
+    let numeroFoto = 1;
+
+    // Limpiar la galería
+    gallery.innerHTML = '';
+
+    // Buscar imágenes consecutivas: foto1, foto2, foto3...
+    while (numeroFoto <= 100) { // límite de seguridad
+        let imagenEncontrada = false;
+
+        // Probar con cada extensión permitida
+        for (const extension of extensiones) {
+            const rutaImagen = `Galeria/foto${numeroFoto}.${extension}`;
+
+            // Verificar si la imagen existe
+            const existe = await new Promise(resolve => {
+                const img = new Image();
+
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+
+                img.src = rutaImagen;
+            });
+
+            if (existe) {
+                imagenEncontrada = true;
+
+                // Obtener la descripción desde Texto/fotoX.txt
+                const descripcion = await obtenerDescripcion(numeroFoto);
+
+                // Crear tarjeta
+                const card = document.createElement('div');
+                card.className = 'image-card';
+
+                card.innerHTML = `
+                    <img src="${rutaImagen}" alt="Foto ${numeroFoto}">
+                    <div class="overlay">
+                        <p>${descripcion}</p>
+                    </div>
+                `;
+
+                gallery.appendChild(card);
+
+                // Ya se encontró la imagen, no seguir probando extensiones
+                break;
+            }
+        }
+
+        // Si no existe la siguiente imagen, detener el proceso
+        if (!imagenEncontrada) {
+            break;
+        }
+
+        numeroFoto++;
+    }
+
+    // Ejecutar la animación después de crear todas las tarjetas
+    setTimeout(mostrarCards, 200);
+}
+
+/* FADE IN */
+function mostrarCards() {
+    const cards = document.querySelectorAll('.image-card');
+    const trigger = window.innerHeight * 0.85;
+
+    cards.forEach(card => {
+        const top = card.getBoundingClientRect().top;
+
+        if (top < trigger) {
+            card.classList.add('visible');
+        }
+    });
+}
 
 /* CORAZONES */
-
-function crearCorazon(){
-
+function crearCorazon() {
     const heart = document.createElement('div');
 
     heart.classList.add('heart');
-
     heart.innerHTML = '💖';
 
-    heart.style.left = Math.random()*100 + 'vw';
-
-    heart.style.fontSize = (Math.random()*20 + 15) + 'px';
-
-    heart.style.animationDuration = (Math.random()*3 + 3) + 's';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+    heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
 
     document.body.appendChild(heart);
 
-    setTimeout(()=>{
+    setTimeout(() => {
         heart.remove();
-    },6000);
-
+    }, 6000);
 }
 
-setInterval(crearCorazon,700);
+/* INICIALIZACIÓN */
+window.addEventListener('load', async () => {
+    await crearGaleria();
+    mostrarCards();
+});
+
+window.addEventListener('scroll', mostrarCards);
+
+/* Generar corazones continuamente */
+setInterval(crearCorazon, 700);
 
 </script>
-
-</body>
-</html>
